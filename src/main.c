@@ -1,6 +1,7 @@
 #include <raylib.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 #define WIDTH 900
 #define HEIGHT 600
@@ -30,6 +31,7 @@ int main(void)
 			(Rectangle){0, 0, WIDTH, -HEIGHT}, // flip vertically
 			(Vector2){0, 0},
 			WHITE);
+		DrawClockHands(WIDTH / 2, HEIGHT / 2, (HEIGHT < WIDTH ? HEIGHT : WIDTH) / 2 - 10);
 		EndDrawing();
 	}
 
@@ -76,4 +78,33 @@ void DrawClockFace(Color face, Color display, int padding)
 			DrawLineEx((Vector2){x1, y1}, (Vector2){x2, y2}, 2.5f, display);
 		}
 	}
+}
+
+void DrawClockHands(int cx, int cy, int length)
+{
+	time_t now = time(NULL);
+	struct tm *t = localtime(&now);
+
+	float hourAngle = ((t->tm_hour % 12) + t->tm_min / 60.0f) * 30.0f;
+	float minuteAngle = (t->tm_min + t->tm_sec / 60.0f) * 6.0f;
+	float secondAngle = t->tm_sec * 6.0f;
+
+	float hourLength = length * 0.5f;
+	float minuteLength = length * 0.75f;
+	float secondLength = length * 0.9f;
+
+	Vector2 center = {cx, cy};
+
+	Vector2 hourEnd = {cx + hourLength * cos(DEG(hourAngle - 90)),
+					   cy + hourLength * sin(DEG(hourAngle - 90))};
+
+	Vector2 minuteEnd = {cx + minuteLength * cos(DEG(minuteAngle - 90)),
+						 cy + minuteLength * sin(DEG(minuteAngle - 90))};
+
+	Vector2 secondEnd = {cx + secondLength * cos(DEG(secondAngle - 90)),
+						 cy + secondLength * sin(DEG(secondAngle - 90))};
+
+	DrawLineEx(center, hourEnd, 8.0f, RED);
+	DrawLineEx(center, minuteEnd, 5.0f, PURPLE);
+	DrawLineEx(center, secondEnd, 2.0f, GREEN);
 }
